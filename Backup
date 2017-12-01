@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Remove -b 
-
 VERSION=false
 HELP=false
 TYPE_OF_COMPRESS_FILE_BOOL=false
