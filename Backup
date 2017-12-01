@@ -1,0 +1,175 @@
+#!/bin/bash
+
+# Remove -b 
+
+VERSION=false
+HELP=false
+TYPE_OF_COMPRESS_FILE_BOOL=false
+ChangeName=false
+PATH_to_Backup_Bool=false
+CopyToPathBool=false
+REMOVE=false
+COMPRESS_BOOL=false
+
+while getopts x:hvp:t:n:rc: option
+do
+ case "${option}"
+ in
+ x) CopyBackupsPath=${OPTARG}; CopyToPathBool=true;;
+ h) HELP=true;;
+ v) VERSION=true;;
+ p) PATH_to_Backup=${OPTARG}; PATH_to_Backup_Bool=true;;
+ t) TYPE_OF_COMPRESS_FILE_BOOL=true; TYPE_OF_COMPRESS_FILE=${OPTARG};;
+ n) NAME=${OPTARG}; ChangeName=true;;
+ r) REMOVE=true;;
+ c) COMPRESS_BOOL=true; COMPRESS_TYPE=${OPTARG};;
+ esac
+done
+Logo()
+{
+	echo "__________                __                   "
+	echo "\______   \_____    ____ |  | ____ ________    "
+ 	echo " |    |  _/\__  \ _/ ___\|  |/ /  |  \____ \   "
+ 	echo " |    |   \ / __ \\\ \___|     <|  |  /  |_> > "
+ 	echo " |______  /(____  /\___  >__|_ \____/|   __/   "
+    echo "        \/      \/     \/     \/     |__|      "
+    printf "${Blue}-=-=-=-=-=-=-=-=-#By Ruslan#-=-=-=-=-=-=-=-=-${Color_Off}\n"
+}
+HelpFunction()
+{
+	Logo
+	printf "\n${Red}[+]${Color_Off} Available flags:\n"
+	printf "\t${Blue}-h${Color_Off} -> help flag\n"
+	printf "\t${Blue}-v${Color_Off} -> version of script\n"
+	printf "\t${Blue}-p${Color_Off} -> path to backup\n"
+	printf "\t${Blue}-x${Color_Off} -> path to copy backup\n"
+	printf "\t${Blue}-t${Color_Off} -> type of Compress file ${Red}<tar|zip|rar>${Color_Off}\n"
+	printf "\t${Blue}-n${Color_Off} -> to set the name\n"
+	printf "\t${Blue}-r${Color_Off} -> to after backup remove original (file/folder)\n"
+	printf "\t${Blue}-c${Color_Off} -> to compress availables backups ${Red}<tar|zip|rar>${Color_Off}\n"
+    printf "\n${Red}[+]${Color_Off} Example: Backup -p /root/Desktop -t tar -n TEST -r"
+    printf "\n${Red}[+]${Color_Off} Example: Backup -p /media/root/PEN -t zip -n TEST -x /root/Desktop\n"
+
+    exit
+}
+
+today=`date '+%Y_%m_%d-%Hh_%Mm'`;
+FileName="$NAME#$today"
+######################################################
+# This variables must by change for you Folder       #
+######################################################
+# To home directory of backups
+DIRHOME="/root/Documents/Backups"
+# To create new folder to backup
+BackupFolder="/root/Documents/Backups/$FileName"
+# To home directory of the compress backups
+Compress_Backups_HOMEDIR="/opt/CompressBackups"
+# To create new folder to the compress backups
+Compress_Backups_FOLDER="/opt/CompressBackups/$today"
+#####################################################
+
+Color_Off='\033[0m'       
+Black='\033[0;30m'        
+Red='\033[0;31m'          
+Green='\033[0;32m'        
+Yellow='\033[0;33m'       
+Blue='\033[0;34m'         
+Purple='\033[0;35m'       
+Cyan='\033[0;36m'         
+White='\033[0;37m'
+
+if [ $# -lt 1 ]; then
+	Logo
+	printf "\n${Red}[+]${Color_Off} Usage: Backup <arguments>\n"
+	printf "${Red}[+]${Color_Off} Use -h to more information\n"
+	exit 1
+fi
+
+if [[ "$HELP" = "true" ]]; then
+	HelpFunction
+elif [[ "$VERSION" = "true" ]]; then
+	printf "${Red}[+]${Color_Off} Version = 1.6.0\n"
+	exit 
+elif [[ "$COMPRESS_BOOL" = "true" ]]; then
+	if (( $(ls -1 $DIRHOME | wc -l) >= 10 )); then
+		Logo
+		mkdir $Compress_Backups_FOLDER
+		cd $DIRHOME
+		printf "${Red}[+]${Color_Off} Coping File to $Compress_Backups_HOMEDIR/$today\n"
+		mv * $Compress_Backups_FOLDER 
+		cd $Compress_Backups_HOMEDIR
+
+		if [[ "$COMPRESS_TYPE" = "tar" ]]; then
+			printf "\n${Red}[+]${Color_Off} Compress Files\n"
+			tar -czvf $today.tar.gz $today
+			rm -r $today
+			exit
+		elif [[ "$COMPRESS_TYPE" = "zip" ]]; then
+			printf "\n${Red}[+]${Color_Off} Compress Files\n"
+			zip -r $today.zip $today
+			rm -r $today
+			exit
+		else
+			printf "${Red}[+] Enter correct option to -c flag. Try -h flag to more information.${Color_Off}\n"
+			exit 1 
+		fi
+	else
+		printf "${Red}[+] You need it at a minimum 10 Backups.${Color_Off}\n"
+		exit 1
+	fi
+	exit
+elif [[ "$BackupBool" = "false" ]]; then
+	printf "${Red}[+] Worming use -p to set the type of backup${Color_Off}\n"
+	printf "${Red}[+] Try -h flag to more information.${Color_Off}\n"
+	exit 1
+elif [[ "$PATH_to_Backup_Bool" = "false" ]]; then
+	printf "${Red}[+] Worming use -p to set the path to the backup $Backup ${Color_Off}\n"
+	printf "${Red}[+] Try -h flag to more information.${Color_Off}\n"
+	exit 1
+elif [[ "$TYPE_OF_COMPRESS_FILE_BOOL" = "false" ]]; then
+	printf "${Red}[+] Worming use -t to set the type of compress.${Color_Off}\n"
+	printf "${Red}[+] Try -h flag to more information.${Color_Off}\n"
+	exit 1
+elif [[ "$ChangeName" = "false" ]]; then
+	printf "${Red}[+] Worming use -n to set name to the file${Color_Off}\n"
+	printf "${Red}[+] Try -h flag to more information.${Color_Off}\n"
+	exit 1
+fi
+
+# Start of the main function
+
+Logo	
+mkdir $BackupFolder
+printf "${Red}[+]${Color_Off} Coping File to $DIRHOME/$today\n"
+cp -r $PATH_to_Backup $BackupFolder
+cd $DIRHOME	
+printf "\n${Red}[+]${Color_Off} Compress Files\n"
+if [[ "$TYPE_OF_COMPRESS_FILE" = "tar" ]]; then
+	tar -czvf $FileName.tar.gz $FileName
+elif [[ "$TYPE_OF_COMPRESS_FILE" = "zip" ]]; then
+	zip -r $FileName.zip $FileName
+elif [[ "$TYPE_OF_COMPRESS_FILE"  = "rar" ]]; then
+	rar a $FileName.rar $FileName
+else
+	printf "${Red}[+] Enter correct option to -t flag. Try -h flag to more information.${Color_Off}\n"
+	exit 1 
+fi
+
+if [[ "$CopyToPathBool" = "true" ]]; then
+	mv $FileName.tar.gz $CopyBackupsPath
+fi 
+if [[ "$REMOVE"  = "true" ]]; then
+	printf "${Red}[+] Are you sure that you want to delete the original $Backup [YES/NO]: ${Color_Off}"
+	read STATUS
+	if [[ "$STATUS" = "YES" ]]; then
+		rm -r $PATH_to_Backup
+	elif [[ "$STATUS" = "NO" ]]; then
+		printf "${Red}[+] Can not delete $Backup ${Color_Off}\n"
+	else
+		printf "${Red}[+] $STATUS is incorrect option.${Color_Off}\n"
+	fi
+fi
+
+rm -r $FileName
+printf "\n${Red}[+]${Color_Off} Backup Successful\n"
+exit
