@@ -47,8 +47,8 @@ HelpFunction()
 	printf "\t${Blue}-n${Color_Off} -> to set the name\n"
 	printf "\t${Blue}-r${Color_Off} -> to after backup remove original (file/folder)\n"
 	printf "\t${Blue}-c${Color_Off} -> to compress availables backups ${Red}<tar|zip|rar>${Color_Off}\n"
-    printf "\n${Red}[+]${Color_Off} Example: Backup -p /root/Desktop -t tar -n TEST -r"
-    printf "\n${Red}[+]${Color_Off} Example: Backup -p /media/root/PEN -t zip -n TEST -x /root/Desktop\n"
+    	printf "\n${Red}[+]${Color_Off} Example: Backup -p /root/Desktop -t tar -n TEST -r"
+    	printf "\n${Red}[+]${Color_Off} Example: Backup -p /media/root/PEN -t zip -n TEST -x /root/Desktop\n"
 
     exit
 }
@@ -107,6 +107,11 @@ elif [[ "$COMPRESS_BOOL" = "true" ]]; then
 		elif [[ "$COMPRESS_TYPE" = "zip" ]]; then
 			printf "\n${Red}[+]${Color_Off} Compress Files\n"
 			zip -r $today.zip $today
+			rm -r $today
+			exit
+		elif [[ "$COMPRESS_TYPE" = "rar" ]]; then
+			printf "\n${Red}[+]${Color_Off} Compress Files\n"
+			rar a $today.rar $today
 			rm -r $today
 			exit
 		else
